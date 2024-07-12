@@ -1,0 +1,49 @@
+package similarusers
+
+import (
+	"gn222gq/rec-sys/internal/model"
+	"gn222gq/rec-sys/internal/util"
+)
+
+func CalculateSimilarity(ratings []model.Rating, userId int) ([]SimilarityScore, error) {
+	groupedRatings := groupUserRatings(ratings)
+	similarityScores := []SimilarityScore{}
+	for id, userRatings := range groupedRatings {
+		if id == userId {
+			continue
+		}
+		baseUserRatings := []float64{}
+		otherUserRatings := []float64{}
+		for movieId, rating := range userRatings {
+			user1Rating, ok := groupedRatings[userId][movieId]
+			if ok {
+				baseUserRatings = append(baseUserRatings, float64(user1Rating))
+				otherUserRatings = append(otherUserRatings, float64(rating))
+			}
+		}
+    similarityScore, err := util.EuclideanDistance(baseUserRatings, otherUserRatings)
+    if err != nil {
+      return nil, err
+    }
+    similarityScores = append(similarityScores, SimilarityScore{ UserId: id, Score: similarityScore})
+	}
+    return similarityScores, nil
+}
+
+func groupUserRatings(ratings []model.Rating) map[int]map[int]float32 {
+	sortedRatings := map[int]map[int]float32{}
+	for _, rating := range ratings {
+		userId := rating.UserId
+		movieId := rating.MovieId
+		rating := rating.Rating
+
+		val, ok := sortedRatings[userId]
+		if ok {
+			val[movieId] = rating
+		} else {
+			sortedRatings[userId] = map[int]float32{movieId: rating}
+		}
+	}
+
+	return sortedRatings
+}
