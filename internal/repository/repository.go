@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"gn222gq/rec-sys/internal/model"
 )
 
@@ -43,6 +44,32 @@ func (r *Repository) ValidateUserId(ctx context.Context, userId int) (bool, erro
     return false, err
   }
   return true, nil
+}
+
+func (r *Repository) GetUsersFromIds(ctx context.Context, userIds []int) ([]model.User, error) {
+  var users []model.User
+  queryStr := "SELECT * FROM users WHERE "
+  for i, val := range userIds {
+    if i == len(userIds) - 1 {
+      queryStr += fmt.Sprintf("id = %d", val)
+    } else {
+      queryStr += fmt.Sprintf("id = %d OR ", val)
+    }
+  }
+  allRows, err := r.dbConn.QueryContext(ctx, queryStr)
+  if err != nil {
+    return nil, err
+  }
+  defer allRows.Close()
+
+  for allRows.Next() {
+    var user model.User
+    if err := allRows.Scan(&user.Id, &user.Name); err != nil {
+      return users, nil
+    }
+    users = append(users, user)
+  }
+  return users, nil
 }
 
 

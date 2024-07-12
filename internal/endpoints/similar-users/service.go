@@ -61,6 +61,12 @@ func (s *Service) GetSimilarUsers(ctx context.Context, queryParams map[string]st
     return nil, err
   }
 
+  paginatedSimilarityScores := s.paginateSimilarityScores(similarityScores, params.limit, params.page)
+  completeSimilarityScores, err := s.getUsernames(ctx, paginatedSimilarityScores)
+  if err != nil {
+    return nil, err
+  }
+  return completeSimilarityScores, nil
 }
 
 func (s *Service) getUsernames(ctx context.Context, scores []SimilarityScore) ([]SimilarityScore, error) {
