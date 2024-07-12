@@ -43,9 +43,7 @@ func (a *App) Run() {
   
   suService := similarusers.NewService(repo)
   suHandler := similarusers.NewHandler(suService)
-  v1.Get("/similar-users", func(ctx *fiber.Ctx) error {
-    return suHandler.Handle(ctx)
-  })
+  v1.Get("/similar-users", suHandler.Handle)
 
   app.Listen(a.port)
 }

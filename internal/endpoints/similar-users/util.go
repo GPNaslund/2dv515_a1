@@ -1,11 +1,12 @@
 package similarusers
 
 import (
+	endpointsutil "gn222gq/rec-sys/internal/endpoints/util"
 	"gn222gq/rec-sys/internal/model"
 	"gn222gq/rec-sys/internal/util"
 )
 
-func CalculateSimilarity(ratings []model.Rating, userId int) ([]SimilarityScore, error) {
+func CalculateUserSimilarity(ratings []model.Rating, userId int, algorithm endpointsutil.SimilarityAlgorithm) ([]SimilarityScore, error) {
 	groupedRatings := groupUserRatings(ratings)
 	similarityScores := []SimilarityScore{}
 	for id, userRatings := range groupedRatings {
@@ -21,13 +22,21 @@ func CalculateSimilarity(ratings []model.Rating, userId int) ([]SimilarityScore,
 				otherUserRatings = append(otherUserRatings, float64(rating))
 			}
 		}
-    similarityScore, err := util.EuclideanDistance(baseUserRatings, otherUserRatings)
-    if err != nil {
-      return nil, err
-    }
-    similarityScores = append(similarityScores, SimilarityScore{ UserId: id, Score: similarityScore})
+		if algorithm == endpointsutil.Euclidean {
+			similarityScore, err := util.EuclideanDistance(baseUserRatings, otherUserRatings)
+			if err != nil {
+				return nil, err
+			}
+			similarityScores = append(similarityScores, SimilarityScore{UserId: id, Score: similarityScore})
+		} else if algorithm == endpointsutil.Pearson {
+      similarityScore, err := util.PearsonScore(baseUserRatings, otherUserRatings)
+      if err != nil {
+        return nil, err
+      }
+      similarityScores = append(similarityScores, SimilarityScore{ UserId: id, Score: similarityScore})
+		}
 	}
-    return similarityScores, nil
+	return similarityScores, nil
 }
 
 func groupUserRatings(ratings []model.Rating) map[int]map[int]float32 {
