@@ -7,6 +7,12 @@ import (
 	"math"
 )
 
+type SimilarityScore struct {
+	UserId   int
+	UserName string
+	Score    float64
+}
+
 func CalculateUserSimilarity(ratings []model.Rating, userId int, algorithm endpointsutil.SimilarityAlgorithm) ([]SimilarityScore, error) {
 	groupedRatings := groupUserRatings(ratings)
 	similarityScores := []SimilarityScore{}

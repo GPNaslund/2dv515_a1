@@ -7,7 +7,6 @@ import (
 	endpointsutil "gn222gq/rec-sys/internal/endpoints/util"
 	"gn222gq/rec-sys/internal/model"
 	"slices"
-	"strconv"
 )
 
 type SimilarityScore struct {
@@ -50,8 +49,7 @@ func (s *Service) GetSimilarUsers(ctx context.Context, queryParams map[string]st
 	if err != nil {
 		return nil, err
 	}
-	userId, _ := strconv.Atoi(queryParams["user"])
-	similarityScores, err := CalculateUserSimilarity(allRatings, userId, params.Algorithm)
+	similarityScores, err := CalculateUserSimilarity(allRatings, params.UserId, params.Algorithm)
 	if err != nil {
 		return nil, err
 	}
