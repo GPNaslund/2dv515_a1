@@ -4,6 +4,7 @@ import (
 	endpointsutil "gn222gq/rec-sys/internal/endpoints/util"
 	"gn222gq/rec-sys/internal/model"
 	"gn222gq/rec-sys/internal/util"
+	"math"
 )
 
 func CalculateUserSimilarity(ratings []model.Rating, userId int, algorithm endpointsutil.SimilarityAlgorithm) ([]SimilarityScore, error) {
@@ -55,4 +56,17 @@ func groupUserRatings(ratings []model.Rating) map[int]map[int]float32 {
 	}
 
 	return sortedRatings
+}
+
+func PaginateSimilarityScores(scores []SimilarityScore, limit, page int) []SimilarityScore {
+	amountScores := len(scores)
+	startIndex := (page - 1) * limit
+	endIndex := startIndex + limit
+
+	if startIndex >= amountScores {
+		return []SimilarityScore{}
+	}
+
+	endIndex = int(math.Min(float64(endIndex), float64(amountScores)))
+	return scores[startIndex:endIndex]
 }

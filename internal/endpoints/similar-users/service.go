@@ -1,11 +1,12 @@
 package similarusers
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	endpointsutil "gn222gq/rec-sys/internal/endpoints/util"
 	"gn222gq/rec-sys/internal/model"
-	"math"
+	"slices"
 	"strconv"
 )
 
@@ -32,7 +33,7 @@ func NewService(repo Repository) *Service {
 }
 
 func (s *Service) GetSimilarUsers(ctx context.Context, queryParams map[string]string) ([]SimilarityScore, error) {
-	params, err := s.validateQueryParams(queryParams)
+	params, err := endpointsutil.ValidateQueryParams(queryParams)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +56,11 @@ func (s *Service) GetSimilarUsers(ctx context.Context, queryParams map[string]st
 		return nil, err
 	}
 
-	paginatedSimilarityScores := s.paginateSimilarityScores(similarityScores, params.Limit, params.Page)
+  slices.SortFunc(similarityScores, func(a, b SimilarityScore) int {
+    return cmp.Compare(a.Score, b.Score)
+  })
+
+	paginatedSimilarityScores := PaginateSimilarityScores(similarityScores, params.Limit, params.Page)
 	completeSimilarityScores, err := s.getUsernames(ctx, paginatedSimilarityScores)
 	if err != nil {
 		return nil, err
@@ -83,58 +88,4 @@ func (s *Service) getUsernames(ctx context.Context, scores []SimilarityScore) ([
 		}
 	}
 	return completeSimilarityScores, nil
-}
-
-func (s *Service) paginateSimilarityScores(scores []SimilarityScore, limit, page int) []SimilarityScore {
-	amountScores := len(scores)
-	startIndex := (page - 1) * limit
-	endIndex := startIndex + limit
-
-	if startIndex >= amountScores {
-		return []SimilarityScore{}
-	}
-
-	endIndex = int(math.Min(float64(endIndex), float64(amountScores)))
-	return scores[startIndex:endIndex]
-}
-
-func (s *Service) validateQueryParams(queryParams map[string]string) (endpointsutil.QueryParameters, error) {
-	var params endpointsutil.QueryParameters
-
-	if len(queryParams) != 4 {
-		return params, fmt.Errorf("Invalid amount of query parameters")
-	}
-
-	if queryParams["user"] == "" || queryParams["algorithm"] == "" || queryParams["limit"] == "" || queryParams["page"] == "" {
-		return params, fmt.Errorf("Missing query parameter")
-	}
-
-	id, err := strconv.Atoi(queryParams["user"])
-	if err != nil {
-		return params, fmt.Errorf("Invalid user id format")
-	}
-	params.UserId = id
-
-	limit, err := strconv.Atoi(queryParams["limit"])
-	if err != nil {
-		return params, fmt.Errorf("Invalid limit value")
-	}
-	params.Limit = limit
-
-	page, err := strconv.Atoi(queryParams["page"])
-	if err != nil {
-		return params, fmt.Errorf("Invalid page value")
-	}
-	params.Page = page
-
-	switch queryParams["algorithm"] {
-	case "euclidean":
-		params.Algorithm = endpointsutil.Euclidean
-	case "pearson":
-		params.Algorithm = endpointsutil.Pearson
-	default:
-		return params, fmt.Errorf("Invalid value for algorithm")
-	}
-
-	return params, nil
 }
