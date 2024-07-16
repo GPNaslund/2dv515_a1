@@ -37,7 +37,8 @@ func (a *App) Run() {
   }
   repo := repository.NewRepository(dbConn)
 
-  movieRecHandler := movierecommendations.NewHandler()
+  movieRecService := movierecommendations.NewService(repo)
+  movieRecHandler := movierecommendations.NewHandler(movieRecService)
   v1.Get("/movie-recommendations", movieRecHandler.Handle)
 
   

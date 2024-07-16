@@ -8,7 +8,7 @@ import (
 )
 
 type MovieRecommendationsService interface {
-  GetMovieRecommendations(ctx context.Context, queryParams map[string]string) (string, error)
+  GetMovieRecommendations(ctx context.Context, queryParams map[string]string) ([]MovieRecommendation, error)
 }
 
 type Handler struct {

@@ -9,12 +9,6 @@ import (
 	"slices"
 )
 
-type SimilarityScore struct {
-	UserId   int
-	UserName string
-	Score    float64
-}
-
 type Repository interface {
 	GetAllRatings(ctx context.Context) ([]model.Rating, error)
 	ValidateUserId(ctx context.Context, userId int) (bool, error)
@@ -58,7 +52,7 @@ func (s *Service) GetSimilarUsers(ctx context.Context, queryParams map[string]st
     return cmp.Compare(a.Score, b.Score)
   })
 
-	paginatedSimilarityScores := PaginateSimilarityScores(similarityScores, params.Limit, params.Page)
+	paginatedSimilarityScores := paginateSimilarityScores(similarityScores, params.Limit, params.Page)
 	completeSimilarityScores, err := s.getUsernames(ctx, paginatedSimilarityScores)
 	if err != nil {
 		return nil, err

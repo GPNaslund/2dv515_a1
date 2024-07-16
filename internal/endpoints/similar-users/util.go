@@ -64,7 +64,7 @@ func groupUserRatings(ratings []model.Rating) map[int]map[int]float32 {
 	return sortedRatings
 }
 
-func PaginateSimilarityScores(scores []SimilarityScore, limit, page int) []SimilarityScore {
+func paginateSimilarityScores(scores []SimilarityScore, limit, page int) []SimilarityScore {
 	amountScores := len(scores)
 	startIndex := (page - 1) * limit
 	endIndex := startIndex + limit

@@ -72,4 +72,30 @@ func (r *Repository) GetUsersFromIds(ctx context.Context, userIds []int) ([]mode
   return users, nil
 }
 
+func (r *Repository) GetMoviesFromIds(ctx context.Context, movieIds []int) ([]model.Movie, error) {
+  var movies []model.Movie
+  queryStr := "SELECT * FROM movies WHERE "
+  for i, val := range movieIds {
+    if i == len(movieIds) - 1 {
+      queryStr += fmt.Sprintf("id = %d", val)
+    } else {
+      queryStr += fmt.Sprintf("id = %d OR ", val)
+    }
+  }
+  allRows, err := r.dbConn.QueryContext(ctx, queryStr)
+  if err != nil {
+    return nil, err
+  }
+  defer allRows.Close()
+
+  for allRows.Next() {
+    var movie model.Movie
+    if err := allRows.Scan(&movie.MovieId, &movie.Title, &movie.ReleaseYear); err != nil {
+      return movies, nil 
+    }
+    movies = append(movies, movie)
+  }
+  return movies, nil
+}
+
 

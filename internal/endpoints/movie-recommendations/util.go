@@ -3,9 +3,11 @@ package movierecommendations
 import (
 	similarusers "gn222gq/rec-sys/internal/endpoints/similar-users"
 	"gn222gq/rec-sys/internal/model"
+	"math"
 )
 
 type MovieRecommendation struct {
+  Title string
   MovieId int
   Score float64
 }
@@ -47,3 +49,18 @@ func GetMovieRecommendations(similarityScores []similarusers.SimilarityScore, ra
 
   return recommendations, nil
 }
+
+func paginateMovieRecommendations(scores []MovieRecommendation, limit, page int) []MovieRecommendation {
+	amountRecommendations := len(scores)
+	startIndex := (page - 1) * limit
+	endIndex := startIndex + limit
+
+	if startIndex >= amountRecommendations {
+		return []MovieRecommendation{}
+	}
+
+	endIndex = int(math.Min(float64(endIndex), float64(amountRecommendations)))
+	return scores[startIndex:endIndex]
+}
+
+
