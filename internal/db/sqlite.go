@@ -29,4 +29,8 @@ func (s *SqliteDb) GetConnection(c context.Context) (*sql.Conn, error) {
   return s.db.Conn(c)
 }
 
+func (s *SqliteDb) CloseDbConnection(c context.Context) error {
+  return s.db.Close()
+}
+
 

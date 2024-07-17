@@ -7,9 +7,9 @@ import (
 )
 
 type MovieRecommendation struct {
-  Title string
-  MovieId int
-  Score float64
+  Title string `json:"title"`
+  MovieId int `json:"movie_id"`
+  Score float64 `json:"score"`
 }
 
 type MovieSimilarityScore struct {

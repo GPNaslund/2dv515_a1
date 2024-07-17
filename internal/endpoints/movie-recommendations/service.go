@@ -72,8 +72,8 @@ func (s *Service) GetMovieRecommendations(ctx context.Context, queryParams map[s
 
   var result []MovieRecommendation
 
-  for _, movie := range movies {
-    for _ , movieScore := range paginatedResult {
+  for _, movieScore := range paginatedResult {
+    for _ , movie := range movies {
       if movie.MovieId == movieScore.MovieId {
         result = append(result, MovieRecommendation{Title: movie.Title, MovieId: movieScore.MovieId, Score: movieScore.Score })
       }

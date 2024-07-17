@@ -4,13 +4,14 @@ import (
 	endpointsutil "gn222gq/rec-sys/internal/endpoints/util"
 	"gn222gq/rec-sys/internal/model"
 	"gn222gq/rec-sys/internal/util"
+	"log"
 	"math"
 )
 
 type SimilarityScore struct {
-	UserId   int
-	UserName string
-	Score    float64
+  UserId   int `json:"user_id"`
+  UserName string `json:"user_name"`
+  Score    float64 `json:"score"`
 }
 
 func CalculateUserSimilarity(ratings []model.Rating, userId int, algorithm endpointsutil.SimilarityAlgorithm) ([]SimilarityScore, error) {
@@ -43,6 +44,7 @@ func CalculateUserSimilarity(ratings []model.Rating, userId int, algorithm endpo
       similarityScores = append(similarityScores, SimilarityScore{ UserId: id, Score: similarityScore})
 		}
 	}
+  log.Printf("%v", similarityScores)
 	return similarityScores, nil
 }
 

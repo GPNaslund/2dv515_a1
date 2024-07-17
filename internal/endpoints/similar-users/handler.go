@@ -32,7 +32,5 @@ func (h *Handler) Handle(c *fiber.Ctx) error {
     })
   }
 
-  return c.Status(fiber.StatusOK).JSON(fiber.Map{
-    "scores": result,
-  })
+  return c.Status(fiber.StatusOK).JSON(result)
 }

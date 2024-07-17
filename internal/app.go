@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"gn222gq/rec-sys/internal/db"
+	"gn222gq/rec-sys/internal/endpoints/hello"
 	movierecommendations "gn222gq/rec-sys/internal/endpoints/movie-recommendations"
 	similarusers "gn222gq/rec-sys/internal/endpoints/similar-users"
 	"gn222gq/rec-sys/internal/repository"
@@ -12,19 +13,15 @@ import (
 )
 
 type App struct {
-  port string
-
 }
 
-func NewApp(port string) *App {
-	return &App{
-    port: port,
-  }
+func NewApp() *App {
+  return &App{}
 }
 
-func (a *App) Run() {
+func (a *App) Create() *fiber.App {
 	app := fiber.New()
-
+  
   api := app.Group("/api")
 
   v1 := api.Group("/v1")
@@ -46,5 +43,12 @@ func (a *App) Run() {
   suHandler := similarusers.NewHandler(suService)
   v1.Get("/similar-users", suHandler.Handle)
 
-  app.Listen(a.port)
+  helloHandler := hello.NewHandler()
+  app.Get("/hello", helloHandler.Handle)
+
+  app.Hooks().OnShutdown(func() error {
+    return dbPool.CloseDbConnection(ctx)
+  })
+
+  return app
 }
